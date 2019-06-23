@@ -2,6 +2,7 @@ package com.feiliks.sap_bridge;
 
 import com.feiliks.sap_bridge.utils.StreamUtil;
 import com.sap.conn.jco.*;
+import com.sap.conn.jco.ext.Environment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +58,14 @@ public class GetTableServlet extends HttpServlet {
     private final static String PASSWORD = "vK@mTfnjnyxy5iPD";
     private final static String ABAP_AS_POOLED = "ABAP_AS_WITH_POOL";
     private static JCoDestination jcoDestination = null;
+    static {
+        try {
+            Environment.registerDestinationDataProvider(new FeiliDestinationDataProvider(
+                    ABAP_AS_POOLED));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static JCoDestination getDestination() throws JCoException {
         if (jcoDestination == null) {
