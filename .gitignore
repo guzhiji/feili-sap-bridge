@@ -1,0 +1,11 @@
+/bin/
+/target/
+/.idea/
+/.vscode/
+/.settings/
+/.classpath
+/.project
+
+*.iml
+*.keystore
+
