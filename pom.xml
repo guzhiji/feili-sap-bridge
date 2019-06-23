@@ -105,6 +105,9 @@
 							<classpathPrefix>libs/</classpathPrefix>
 							<mainClass>com.feiliks.sap_bridge.SapBridgeServer</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Class-Path>libs/sapjco3.jar</Class-Path>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
