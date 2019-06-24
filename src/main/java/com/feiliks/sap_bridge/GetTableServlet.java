@@ -158,6 +158,7 @@ public class GetTableServlet extends HttpServlet {
     }
 
     private static void writeResult(HttpServletResponse resp, JSONArray result) throws IOException {
+        resp.setHeader("Content-Type", "application/json; charset=UTF-8");
         JSONObject out = new JSONObject();
         out.put("code", 0);
         out.put("content", result);
@@ -169,6 +170,7 @@ public class GetTableServlet extends HttpServlet {
         json.put("code", code);
         json.put("content", msg);
         resp.setStatus(httpStatus);
+        resp.setHeader("Content-Type", "application/json; charset=UTF-8");
         json.write(resp.getWriter());
     }
 
