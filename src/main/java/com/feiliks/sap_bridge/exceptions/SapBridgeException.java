@@ -1,4 +1,4 @@
-package com.feiliks.sap_bridge;
+package com.feiliks.sap_bridge.exceptions;
 
 
 public abstract class SapBridgeException extends Exception {

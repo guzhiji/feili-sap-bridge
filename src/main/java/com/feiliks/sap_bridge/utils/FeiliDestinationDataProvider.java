@@ -1,4 +1,4 @@
-package com.feiliks.sap_bridge;
+package com.feiliks.sap_bridge.utils;
 
 import com.sap.conn.jco.ext.DataProviderException;
 import com.sap.conn.jco.ext.DestinationDataEventListener;
