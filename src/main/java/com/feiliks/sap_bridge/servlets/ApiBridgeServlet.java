@@ -37,6 +37,8 @@ public class ApiBridgeServlet extends AbstractSapBridgeServlet {
             writeBadRequest(resp, e.getCode(), e.getMessage());
         } catch (JCoException e) {
             writeError(resp, 300, e.getMessage());
+        } catch (Exception e) {
+            writeError(resp, 400, e.getMessage());
         }
     }
 
