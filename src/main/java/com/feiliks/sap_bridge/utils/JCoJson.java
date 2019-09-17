@@ -21,12 +21,22 @@ public class JCoJson {
         setStructure(func.getImportParameterList(), json);
     }
 
+    private JSONObject exportParams(JCoParameterList params) {
+        if (params == null)
+            return null;
+        return getObject(params);
+    }
+
     public JSONObject getExportParameters() {
-        return getObject(func.getExportParameterList());
+        return exportParams(func.getExportParameterList());
     }
 
     public JSONObject getTableParameters() {
-        return getObject(func.getTableParameterList());
+        return exportParams(func.getTableParameterList());
+    }
+
+    public JSONObject getChangingParameters() {
+        return exportParams(func.getChangingParameterList());
     }
 
     private void setStructure(JCoRecord output, JSONObject data) {

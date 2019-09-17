@@ -6,6 +6,7 @@ import com.feiliks.sap_bridge.utils.JCoJson;
 import com.feiliks.sap_bridge.utils.JCoUtil;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +33,12 @@ public class ApiBridgeServlet extends AbstractSapBridgeServlet {
             JCoJson jcoJson = new JCoJson(getFunction(req.getPathInfo()));
             jcoJson.importParameters(readRequest(req));
             jcoJson.getFunction().execute(JCoUtil.getDestination());
-            writeResult(resp, jcoJson.getTableParameters());
+            JSONObject result = jcoJson.getTableParameters();
+            if (result == null)
+                result = jcoJson.getExportParameters();
+            if (result == null)
+                result = jcoJson.getChangingParameters();
+            writeResult(resp, result);
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
         } catch (JCoException e) {
