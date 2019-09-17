@@ -8,6 +8,7 @@
 
 *.iml
 *.keystore
+*.trc
 
 /sap-bridge.tar.gz
 
