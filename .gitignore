@@ -11,4 +11,5 @@
 *.trc
 
 /sap-bridge.tar.gz
+/sap-bridge-spring.tar.gz
 

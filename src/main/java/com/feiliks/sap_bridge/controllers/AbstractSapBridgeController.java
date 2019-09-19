@@ -1,4 +1,4 @@
-package com.feiliks.sap_bridge.servlets;
+package com.feiliks.sap_bridge.controllers;
 
 import com.feiliks.sap_bridge.exceptions.MalformedRequestException;
 import com.feiliks.sap_bridge.exceptions.NoSignatureException;
@@ -10,14 +10,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 
-public abstract class AbstractSapBridgeServlet extends HttpServlet {
+public abstract class AbstractSapBridgeController {
     private final static String PASSWORD = "vK@mTfnjnyxy5iPD";
 
     private static String sign(String data) {

@@ -1,4 +1,4 @@
-package com.feiliks.sap_bridge.servlets;
+package com.feiliks.sap_bridge.controllers;
 
 import com.feiliks.sap_bridge.exceptions.FunctionNameException;
 import com.feiliks.sap_bridge.exceptions.SapBridgeException;
@@ -8,6 +8,9 @@ import com.sap.conn.jco.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GetTableServlet extends AbstractSapBridgeServlet {
+@RestController
+@RequestMapping("/get-table")
+public class GetTableServlet extends AbstractSapBridgeController {
 
     private static JCoFunction getFunction(JSONObject json) throws JCoException, FunctionNameException {
         try {
@@ -94,8 +99,8 @@ public class GetTableServlet extends AbstractSapBridgeServlet {
         return out;
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    @PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             JSONObject reqJson = readRequest(req);
             JCoFunction function = getFunction(reqJson);
