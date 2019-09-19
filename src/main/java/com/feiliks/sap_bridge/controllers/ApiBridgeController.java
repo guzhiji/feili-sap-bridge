@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
-public class ApiBridgeServlet extends AbstractSapBridgeController {
+public class ApiBridgeController extends AbstractSapBridgeController {
 
     @PostMapping("/{func}")
     public void doPost(

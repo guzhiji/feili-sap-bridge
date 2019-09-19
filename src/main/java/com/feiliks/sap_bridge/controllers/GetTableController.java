@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/get-table")
-public class GetTableServlet extends AbstractSapBridgeController {
+public class GetTableController extends AbstractSapBridgeController {
 
     private static JCoFunction getFunction(JSONObject json) throws JCoException, FunctionNameException {
         try {
