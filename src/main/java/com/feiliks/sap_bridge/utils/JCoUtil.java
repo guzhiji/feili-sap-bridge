@@ -14,13 +14,16 @@ public class JCoUtil {
 
     private final static String ABAP_AS_POOLED = "ABAP_AS_WITH_POOL";
     private static JCoDestination jcoDestination = null;
-    static {
-        try {
-            Environment.registerDestinationDataProvider(new FeiliDestinationDataProvider(
-                    ABAP_AS_POOLED));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+    public static void init() throws IOException {
+        Environment.registerDestinationDataProvider(new FeiliDestinationDataProvider(
+                ABAP_AS_POOLED));
+    }
+
+    public static void init(String configFile) throws IOException {
+        Environment.registerDestinationDataProvider(new FeiliDestinationDataProvider(
+                configFile,
+                ABAP_AS_POOLED));
     }
 
     public static JCoDestination getDestination() throws JCoException {

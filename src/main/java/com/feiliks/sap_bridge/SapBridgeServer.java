@@ -2,6 +2,7 @@ package com.feiliks.sap_bridge;
 
 import com.feiliks.sap_bridge.servlets.ApiBridgeServlet;
 import com.feiliks.sap_bridge.servlets.GetTableServlet;
+import com.feiliks.sap_bridge.utils.JCoUtil;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -24,6 +25,12 @@ public class SapBridgeServer {
 	}
 
 	public static void main(String[] args) throws Exception {
+
+		if (args.length > 1)
+			JCoUtil.init(args[1]);
+		else
+			JCoUtil.init();
+
 		Server server = new Server();
 
 		ServerConnector connector = new ServerConnector(server);
