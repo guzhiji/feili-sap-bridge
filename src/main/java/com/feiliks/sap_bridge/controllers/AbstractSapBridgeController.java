@@ -1,15 +1,11 @@
 package com.feiliks.sap_bridge.controllers;
 
 import com.feiliks.sap_bridge.exceptions.MalformedRequestException;
-import com.feiliks.sap_bridge.exceptions.NoSignatureException;
 import com.feiliks.sap_bridge.exceptions.SapBridgeException;
-import com.feiliks.sap_bridge.exceptions.SigVerificationException;
 import com.feiliks.sap_bridge.utils.StreamUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,26 +15,32 @@ import java.nio.charset.StandardCharsets;
 
 abstract class AbstractSapBridgeController {
 
+    /*
     @Value("${sap-bridge.password}")
     private String PASSWORD;
 
     private String sign(String data) {
         return DigestUtils.sha256Hex(PASSWORD + '-' + data);
     }
+     */
 
-    protected JSONObject readRequest(HttpServletRequest req) throws SapBridgeException {
+    protected JSONObject readRequest(HttpServletRequest req) throws SapBridgeException, IOException {
+        /*
         String signature = req.getHeader("X-SIG");
         if (signature == null) {
             signature = req.getParameter("sig");
             if (signature == null)
                 throw new NoSignatureException();
         }
+         */
         try {
             String json = StreamUtil.readAsString(req.getInputStream(), StandardCharsets.UTF_8);
+            /*
             if (!signature.equalsIgnoreCase(sign(json)))
                 throw new SigVerificationException();
+             */
             return new JSONObject(json);
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             throw new MalformedRequestException();
         }
     }
