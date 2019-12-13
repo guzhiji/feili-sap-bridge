@@ -5,6 +5,8 @@ import com.feiliks.sap_bridge.utils.JCoJson;
 import com.feiliks.sap_bridge.utils.JCoUtil;
 import com.sap.conn.jco.JCoException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api")
 public class ApiBridgeController extends AbstractSapBridgeController {
+    private final static Logger LOG = LoggerFactory.getLogger(ApiBridgeController.class);
 
     @PostMapping("/{func}")
     public void doPost(
@@ -37,8 +40,10 @@ public class ApiBridgeController extends AbstractSapBridgeController {
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
         } catch (JCoException e) {
+            LOG.error(e.getMessage(), e);
             writeError(resp, 300, e.getMessage());
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             writeError(resp, 400, e.getMessage());
         }
     }

@@ -1,6 +1,5 @@
 package com.feiliks.sap_bridge;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,17 +8,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+import java.util.Properties;
 
 
 @Configuration
 @EnableWebSecurity
-public class SapBridgeSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+public class SapBridgeSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("dev").password(passwordEncoder().encode("dev123"))
-                .authorities("ROLE_USER");
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        Properties userFile = new Properties();
+        userFile.load(getClass().getResourceAsStream("/users.properties"));
+        auth.userDetailsService(new InMemoryUserDetailsManager(userFile));
     }
 
     @Override

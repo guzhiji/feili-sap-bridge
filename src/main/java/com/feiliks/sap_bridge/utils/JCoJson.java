@@ -17,8 +17,22 @@ public class JCoJson {
         return func;
     }
 
+    private void readParams(JCoParameterList params, JSONObject json) {
+        if (params != null) {
+            JSONObject data = new JSONObject();
+            JCoListMetaData meta = params.getListMetaData();
+            for (int i = 0; i < meta.getFieldCount(); i++) {
+                String name = meta.getName(i);
+                if (json.has(name))
+                    data.put(name, json.get(name));
+            }
+            setStructure(params, data);
+        }
+    }
+
     public void importParameters(JSONObject json) {
-        setStructure(func.getImportParameterList(), json);
+        readParams(func.getImportParameterList(), json);
+        readParams(func.getTableParameterList(), json);
     }
 
     private JSONObject exportParams(JCoParameterList params) {
