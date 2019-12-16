@@ -43,16 +43,36 @@ abstract class AbstractSapBridgeController {
         }
     }
 
-    protected void measureTime(long start) {
+    protected void measureTime(String func, long start) {
         try {
             Map<String, Object> doc = new HashMap<>();
             doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
             fillHostInfo(doc);
             doc.put("java_class", getClass().getCanonicalName());
+            doc.put("sap_function", func);
             doc.put("execution_time", System.currentTimeMillis() - start);
             Index index = new Index.Builder(doc)
                     .index(INDEX_NAME)
                     .type("measure")
+                    .build();
+            jestClient.executeAsync(index, null);
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+        }
+    }
+
+    protected void logError(SapBridgeException ex) {
+        try {
+            Map<String, Object> doc = new HashMap<>();
+            doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
+            fillHostInfo(doc);
+            doc.put("java_class", getClass().getCanonicalName());
+            doc.put("message", ex.toString());
+            doc.put("type", ex.getClass().getName());
+            doc.put("error_code", ex.getCode());
+            Index index = new Index.Builder(doc)
+                    .index(INDEX_NAME)
+                    .type("error")
                     .build();
             jestClient.executeAsync(index, null);
         } catch (Throwable t) {

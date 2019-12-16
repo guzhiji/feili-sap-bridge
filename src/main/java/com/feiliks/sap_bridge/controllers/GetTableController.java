@@ -115,9 +115,10 @@ public class GetTableController extends AbstractSapBridgeController {
             JCoTable table = getTable(function.getTableParameterList(), reqJson);
             JSONArray fields = reqJson.optJSONArray("fields");
             writeResult(resp, readRecords(table, fields));
-            measureTime(startTime);
+            measureTime(reqJson.getString("function"), startTime);
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
+            logError(e);
         } catch (JCoException e) {
             LOG.error(e.getMessage(), e);
             writeError(resp, 300, e.getMessage());

@@ -38,9 +38,10 @@ public class ApiBridgeController extends AbstractSapBridgeController {
             if (result == null)
                 result = jcoJson.getChangingParameters();
             writeResult(resp, result);
-            measureTime(startTime);
+            measureTime(func, startTime);
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
+            logError(e);
         } catch (JCoException e) {
             LOG.error(e.getMessage(), e);
             writeError(resp, 300, e.getMessage());
