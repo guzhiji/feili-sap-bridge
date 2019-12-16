@@ -2,18 +2,85 @@ package com.feiliks.sap_bridge.controllers;
 
 import com.feiliks.sap_bridge.exceptions.MalformedRequestException;
 import com.feiliks.sap_bridge.exceptions.SapBridgeException;
+import com.feiliks.sap_bridge.utils.RequestContextUtil;
 import com.feiliks.sap_bridge.utils.StreamUtil;
+import io.searchbox.client.JestClient;
+import io.searchbox.core.Index;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 abstract class AbstractSapBridgeController {
+    private final static Logger LOG = LoggerFactory.getLogger(AbstractSapBridgeController.class);
+    private final static String INDEX_NAME = "sap-bridge";
+    private final static ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal.withInitial(
+            () -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+
+    @Autowired
+    private JestClient jestClient;
+
+    private void fillHostInfo(Map<String, Object> doc) {
+        HttpServletRequest req = RequestContextUtil.getRequest();
+        if (req != null) {
+            doc.put("host", req.getServerName());
+            doc.put("port", req.getServerPort());
+        }
+    }
+
+    protected void measureTime(long start) {
+        try {
+            Map<String, Object> doc = new HashMap<>();
+            doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
+            fillHostInfo(doc);
+            doc.put("java_class", getClass().getCanonicalName());
+            doc.put("execution_time", System.currentTimeMillis() - start);
+            Index index = new Index.Builder(doc)
+                    .index(INDEX_NAME)
+                    .type("measure")
+                    .build();
+            jestClient.executeAsync(index, null);
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+        }
+    }
+
+    protected void logException(Throwable throwable) {
+        try {
+            Map<String, Object> doc = new HashMap<>();
+            doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
+            fillHostInfo(doc);
+            doc.put("java_class", getClass().getCanonicalName());
+            doc.put("message", throwable.toString());
+            doc.put("type", throwable.getClass().getCanonicalName());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            throwable.printStackTrace(pw);
+            doc.put("stackTrace", sw.toString());
+            Index index = new Index.Builder(doc)
+                    .index(INDEX_NAME)
+                    .type("exception")
+                    .build();
+            jestClient.executeAsync(index, null);
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+        }
+    }
 
     /*
     @Value("${sap-bridge.password}")

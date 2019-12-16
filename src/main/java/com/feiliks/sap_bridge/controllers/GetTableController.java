@@ -8,6 +8,8 @@ import com.sap.conn.jco.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/get-table")
 public class GetTableController extends AbstractSapBridgeController {
+    private final static Logger LOG = LoggerFactory.getLogger(GetTableController.class);
 
     private static JCoFunction getFunction(JSONObject json) throws JCoException, FunctionNameException {
         try {
@@ -102,6 +105,7 @@ public class GetTableController extends AbstractSapBridgeController {
     @PostMapping
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            long startTime = System.currentTimeMillis();
             JSONObject reqJson = readRequest(req);
             JCoFunction function = getFunction(reqJson);
             readParams(
@@ -111,12 +115,17 @@ public class GetTableController extends AbstractSapBridgeController {
             JCoTable table = getTable(function.getTableParameterList(), reqJson);
             JSONArray fields = reqJson.optJSONArray("fields");
             writeResult(resp, readRecords(table, fields));
+            measureTime(startTime);
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
         } catch (JCoException e) {
+            LOG.error(e.getMessage(), e);
             writeError(resp, 300, e.getMessage());
+            logException(e);
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             writeError(resp, 400, e.getMessage());
+            logException(e);
         }
     }
 

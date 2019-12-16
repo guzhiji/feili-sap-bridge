@@ -28,6 +28,7 @@ public class ApiBridgeController extends AbstractSapBridgeController {
             HttpServletRequest req,
             HttpServletResponse resp) throws IOException {
         try {
+            long startTime = System.currentTimeMillis();
             JCoJson jcoJson = new JCoJson(JCoUtil.getFunction(func));
             jcoJson.importParameters(readRequest(req));
             jcoJson.getFunction().execute(JCoUtil.getDestination());
@@ -37,14 +38,17 @@ public class ApiBridgeController extends AbstractSapBridgeController {
             if (result == null)
                 result = jcoJson.getChangingParameters();
             writeResult(resp, result);
+            measureTime(startTime);
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
         } catch (JCoException e) {
             LOG.error(e.getMessage(), e);
             writeError(resp, 300, e.getMessage());
+            logException(e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             writeError(resp, 400, e.getMessage());
+            logException(e);
         }
     }
 
