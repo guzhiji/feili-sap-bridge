@@ -1,10 +1,11 @@
 package com.feiliks.sap_bridge.exceptions;
 
-public class FunctionNameException extends SapBridgeException {
+
+public class FunctionNameException extends ParameterException {
     public FunctionNameException() {
-        super(200, "function name required");
+        super(0, "function name required");
     }
     public FunctionNameException(String function) {
-        super(200, "function " + function + " not found");
+        super(0, "function " + function + " not found");
     }
 }

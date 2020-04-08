@@ -1,0 +1,18 @@
+
+spring:
+  profiles:
+    active: http
+  application:
+    name: feili-sap-bridge
+  http:
+    encoding:
+      charset: UTF-8
+  elasticsearch:
+    jest:
+      uris: http://localhost:9200
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8001/eureka/
+

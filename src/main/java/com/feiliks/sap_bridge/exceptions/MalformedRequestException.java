@@ -1,7 +1,8 @@
 package com.feiliks.sap_bridge.exceptions;
 
-public class MalformedRequestException extends SapBridgeException {
+
+public class MalformedRequestException extends RequestException {
     public MalformedRequestException() {
-        super(100, "malformed request data");
+        super(0, "malformed request data");
     }
 }

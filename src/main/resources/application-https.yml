@@ -1,0 +1,18 @@
+
+server:
+  port: 8081
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:feili-sap-bridge.p12
+    key-store-password: dev123
+    key-alias: feili-sap-bridge
+
+security:
+  require-ssl: true
+
+# http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_registering_a_secure_application
+eureka:
+  instance:
+    nonSecurePortEnabled: false
+    securePortEnabled: true
+

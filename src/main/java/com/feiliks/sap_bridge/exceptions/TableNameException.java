@@ -1,10 +1,11 @@
 package com.feiliks.sap_bridge.exceptions;
 
-public class TableNameException extends SapBridgeException {
+
+public class TableNameException extends ParameterException {
     public TableNameException() {
-        super(201, "table name required");
+        super(1, "table name required");
     }
     public TableNameException(String table) {
-        super(201, "table " + table + " not found");
+        super(1, "table " + table + " not found");
     }
 }

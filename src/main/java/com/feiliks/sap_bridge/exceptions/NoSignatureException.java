@@ -1,7 +1,8 @@
 package com.feiliks.sap_bridge.exceptions;
 
-public class NoSignatureException extends SapBridgeException {
+
+public class NoSignatureException extends RequestException {
     public NoSignatureException() {
-        super(101, "signature required");
+        super(1, "signature required");
     }
 }
