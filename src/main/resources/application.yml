@@ -12,6 +12,8 @@ spring:
       uris: http://localhost:9200
 
 eureka:
+  instance:
+    preferIpAddress: true
   client:
     serviceUrl:
       defaultZone: http://localhost:8001/eureka/

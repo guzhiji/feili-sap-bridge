@@ -1,6 +1,7 @@
 package com.feiliks.sap_bridge.utils;
 
 import com.sap.conn.jco.*;
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -58,12 +59,18 @@ public class JCoJson {
             Object val = data.opt(key);
             if (val == null || JSONObject.NULL.equals(val))
                 continue;
-            if (val instanceof JSONObject)
+            if (val instanceof JSONObject) {
                 setStructure(output.getStructure(key), (JSONObject) val);
-            else if (val instanceof JSONArray)
+            } else if (val instanceof JSONArray) {
                 setTable(output.getTable(key), (JSONArray) val);
-            else
-                output.setValue(key, val);
+            } else {
+                if (val instanceof String &&
+                        output.getMetaData().getType(key) == JCoMetaData.TYPE_BYTE) {
+                    output.setValue(key, Base64.decodeBase64((String) val));
+                } else {
+                    output.setValue(key, val);
+                }
+            }
         }
     }
 
@@ -86,6 +93,10 @@ public class JCoJson {
                 output.put(field.getName(), getObject(field.getStructure()));
             } else if (field.isTable()) {
                 output.put(field.getName(), getArray(field.getTable()));
+            } else if (field.getType() == JCoMetaData.TYPE_BYTE) {
+                byte[] bytes = field.getByteArray();
+                if (bytes != null)
+                    output.put(field.getName(), Base64.encodeBase64String(bytes));
             } else {
                 output.put(field.getName(), field.getValue());
             }
