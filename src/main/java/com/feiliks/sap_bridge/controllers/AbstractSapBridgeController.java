@@ -96,7 +96,7 @@ abstract class AbstractSapBridgeController {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             throwable.printStackTrace(pw);
-            doc.put("stack-trace", sw.toString());
+            doc.put("stack_trace", sw.toString());
             Index index = new Index.Builder(doc)
                     .index(INDEX_PREFIX + "exception-" + DATE_FORMAT.get().format(now))
                     .type("exception")
