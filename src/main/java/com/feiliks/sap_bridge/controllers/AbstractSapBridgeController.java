@@ -28,8 +28,10 @@ import java.util.Map;
 
 abstract class AbstractSapBridgeController {
     private final static Logger LOG = LoggerFactory.getLogger(AbstractSapBridgeController.class);
-    private final static String INDEX_NAME = "sap-bridge";
+    private final static String INDEX_PREFIX = "sap-bridge-";
     private final static ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal.withInitial(
+            () -> new SimpleDateFormat("yyyyMMdd"));
+    private final static ThreadLocal<DateFormat> DATETIME_FORMAT = ThreadLocal.withInitial(
             () -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
 
     @Autowired
@@ -45,14 +47,15 @@ abstract class AbstractSapBridgeController {
 
     protected void measureTime(String func, long start) {
         try {
+            Date now = new Date();
             Map<String, Object> doc = new HashMap<>();
-            doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
+            doc.put("@timestamp", DATETIME_FORMAT.get().format(now));
             fillHostInfo(doc);
             doc.put("java_class", getClass().getCanonicalName());
             doc.put("sap_function", func);
             doc.put("execution_time", System.currentTimeMillis() - start);
             Index index = new Index.Builder(doc)
-                    .index(INDEX_NAME)
+                    .index(INDEX_PREFIX + "measure-" + DATE_FORMAT.get().format(now))
                     .type("measure")
                     .build();
             jestClient.executeAsync(index, null);
@@ -63,15 +66,16 @@ abstract class AbstractSapBridgeController {
 
     protected void logError(SapBridgeException ex) {
         try {
+            Date now = new Date();
             Map<String, Object> doc = new HashMap<>();
-            doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
+            doc.put("@timestamp", DATETIME_FORMAT.get().format(now));
             fillHostInfo(doc);
             doc.put("java_class", getClass().getCanonicalName());
             doc.put("message", ex.toString());
             doc.put("type", ex.getClass().getName());
             doc.put("error_code", ex.getCode());
             Index index = new Index.Builder(doc)
-                    .index(INDEX_NAME)
+                    .index(INDEX_PREFIX + "error-" + DATE_FORMAT.get().format(now))
                     .type("error")
                     .build();
             jestClient.executeAsync(index, null);
@@ -82,8 +86,9 @@ abstract class AbstractSapBridgeController {
 
     protected void logException(Throwable throwable) {
         try {
+            Date now = new Date();
             Map<String, Object> doc = new HashMap<>();
-            doc.put("@timestamp", DATE_FORMAT.get().format(new Date()));
+            doc.put("@timestamp", DATETIME_FORMAT.get().format(now));
             fillHostInfo(doc);
             doc.put("java_class", getClass().getCanonicalName());
             doc.put("message", throwable.toString());
@@ -91,9 +96,9 @@ abstract class AbstractSapBridgeController {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             throwable.printStackTrace(pw);
-            doc.put("stackTrace", sw.toString());
+            doc.put("stack-trace", sw.toString());
             Index index = new Index.Builder(doc)
-                    .index(INDEX_NAME)
+                    .index(INDEX_PREFIX + "exception-" + DATE_FORMAT.get().format(now))
                     .type("exception")
                     .build();
             jestClient.executeAsync(index, null);
