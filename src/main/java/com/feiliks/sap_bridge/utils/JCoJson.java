@@ -36,22 +36,19 @@ public class JCoJson {
         readParams(func.getTableParameterList(), json);
     }
 
-    private JSONObject exportParams(JCoParameterList params) {
-        if (params == null)
-            return null;
-        return getObject(params);
-    }
-
-    public JSONObject getExportParameters() {
-        return exportParams(func.getExportParameterList());
-    }
-
-    public JSONObject getTableParameters() {
-        return exportParams(func.getTableParameterList());
-    }
-
-    public JSONObject getChangingParameters() {
-        return exportParams(func.getChangingParameterList());
+    public JSONObject exportParameters() {
+        JSONObject output = new JSONObject();
+        JCoParameterList params;
+        params = func.getExportParameterList();
+        if (params != null)
+            exportObject(params, output);
+        params = func.getTableParameterList();
+        if (params != null)
+            exportObject(params, output);
+        params = func.getChangingParameterList();
+        if (params != null)
+            exportObject(params, output);
+        return output;
     }
 
     private void setStructure(JCoRecord output, JSONObject data) {
@@ -86,6 +83,11 @@ public class JCoJson {
 
     private JSONObject getObject(JCoRecord data) {
         JSONObject output = new JSONObject();
+        exportObject(data, output);
+        return output;
+    }
+
+    private void exportObject(JCoRecord data, JSONObject output) {
         JCoFieldIterator it = data.getFieldIterator();
         while (it.hasNextField()) {
             JCoField field = it.nextField();
@@ -101,7 +103,6 @@ public class JCoJson {
                 output.put(field.getName(), field.getValue());
             }
         }
-        return output;
     }
 
     private JSONArray getArray(JCoTable data) {

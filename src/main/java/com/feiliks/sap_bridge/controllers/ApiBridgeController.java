@@ -4,7 +4,6 @@ import com.feiliks.sap_bridge.exceptions.SapBridgeException;
 import com.feiliks.sap_bridge.utils.JCoJson;
 import com.feiliks.sap_bridge.utils.JCoUtil;
 import com.sap.conn.jco.JCoException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,12 +31,7 @@ public class ApiBridgeController extends AbstractSapBridgeController {
             JCoJson jcoJson = new JCoJson(JCoUtil.getFunction(func));
             jcoJson.importParameters(readRequest(req));
             jcoJson.getFunction().execute(JCoUtil.getDestination());
-            JSONObject result = jcoJson.getTableParameters();
-            if (result == null)
-                result = jcoJson.getExportParameters();
-            if (result == null)
-                result = jcoJson.getChangingParameters();
-            writeResult(resp, result);
+            writeResult(resp, jcoJson.exportParameters());
             measureTime(func, startTime);
         } catch (SapBridgeException e) {
             writeBadRequest(resp, e.getCode(), e.getMessage());
