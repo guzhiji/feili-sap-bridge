@@ -5,6 +5,8 @@ import com.feiliks.sap_bridge.exceptions.SapBridgeException;
 import com.feiliks.sap_bridge.utils.RequestContextUtil;
 import com.feiliks.sap_bridge.utils.StreamUtil;
 import io.searchbox.client.JestClient;
+import io.searchbox.client.JestResultHandler;
+import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Index;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +36,18 @@ abstract class AbstractSapBridgeController {
     private final static ThreadLocal<DateFormat> DATETIME_FORMAT = ThreadLocal.withInitial(
             () -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
 
+    private final static JestResultHandler<DocumentResult> loggingResultHandler =
+            new JestResultHandler<DocumentResult>() {
+                @Override
+                public void completed(DocumentResult result) {
+                }
+
+                @Override
+                public void failed(Exception ex) {
+                    LOG.error("fail to write to elasticsearch", ex);
+                }
+            };
+
     @Autowired
     private JestClient jestClient;
 
@@ -58,7 +72,7 @@ abstract class AbstractSapBridgeController {
                     .index(INDEX_PREFIX + "measure-" + DATE_FORMAT.get().format(now))
                     .type("measure")
                     .build();
-            jestClient.executeAsync(index, null);
+            jestClient.executeAsync(index, loggingResultHandler);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
@@ -78,7 +92,7 @@ abstract class AbstractSapBridgeController {
                     .index(INDEX_PREFIX + "error-" + DATE_FORMAT.get().format(now))
                     .type("error")
                     .build();
-            jestClient.executeAsync(index, null);
+            jestClient.executeAsync(index, loggingResultHandler);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
@@ -101,7 +115,7 @@ abstract class AbstractSapBridgeController {
                     .index(INDEX_PREFIX + "exception-" + DATE_FORMAT.get().format(now))
                     .type("exception")
                     .build();
-            jestClient.executeAsync(index, null);
+            jestClient.executeAsync(index, loggingResultHandler);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
