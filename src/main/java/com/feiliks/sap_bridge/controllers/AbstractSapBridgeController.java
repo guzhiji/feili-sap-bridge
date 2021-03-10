@@ -4,10 +4,11 @@ import com.feiliks.sap_bridge.exceptions.MalformedRequestException;
 import com.feiliks.sap_bridge.exceptions.SapBridgeException;
 import com.feiliks.sap_bridge.utils.RequestContextUtil;
 import com.feiliks.sap_bridge.utils.StreamUtil;
-import io.searchbox.client.JestClient;
-import io.searchbox.client.JestResultHandler;
-import io.searchbox.core.DocumentResult;
-import io.searchbox.core.Index;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,20 +37,23 @@ abstract class AbstractSapBridgeController {
     private final static ThreadLocal<DateFormat> DATETIME_FORMAT = ThreadLocal.withInitial(
             () -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
 
-    private final static JestResultHandler<DocumentResult> loggingResultHandler =
-            new JestResultHandler<DocumentResult>() {
-                @Override
-                public void completed(DocumentResult result) {
-                }
-
-                @Override
-                public void failed(Exception ex) {
-                    LOG.error("fail to write to elasticsearch", ex);
-                }
-            };
+    private final static ActionListener<IndexResponse> loggerListener = new ActionListener<IndexResponse>() {
+        @Override
+        public void onResponse(IndexResponse indexResponse) {
+        }
+        @Override
+        public void onFailure(Exception e) {
+            LOG.error("fail to write to elasticsearch", e);
+        }
+    };
 
     @Autowired
-    private JestClient jestClient;
+    private RestHighLevelClient esLogger;
+
+    private void log(String index, String type, Map<String, Object> doc) {
+        IndexRequest req = new IndexRequest(index).type(type).source(doc);
+        esLogger.indexAsync(req, RequestOptions.DEFAULT, loggerListener);
+    }
 
     private void fillHostInfo(Map<String, Object> doc) {
         HttpServletRequest req = RequestContextUtil.getRequest();
@@ -68,11 +72,8 @@ abstract class AbstractSapBridgeController {
             doc.put("java_class", getClass().getCanonicalName());
             doc.put("sap_function", func);
             doc.put("execution_time", System.currentTimeMillis() - start);
-            Index index = new Index.Builder(doc)
-                    .index(INDEX_PREFIX + "measure-" + DATE_FORMAT.get().format(now))
-                    .type("measure")
-                    .build();
-            jestClient.executeAsync(index, loggingResultHandler);
+            String index = INDEX_PREFIX + "measure-" + DATE_FORMAT.get().format(now);
+            log(index, "measure", doc);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
@@ -88,11 +89,8 @@ abstract class AbstractSapBridgeController {
             doc.put("message", ex.toString());
             doc.put("type", ex.getClass().getName());
             doc.put("error_code", ex.getCode());
-            Index index = new Index.Builder(doc)
-                    .index(INDEX_PREFIX + "error-" + DATE_FORMAT.get().format(now))
-                    .type("error")
-                    .build();
-            jestClient.executeAsync(index, loggingResultHandler);
+            String index = INDEX_PREFIX + "error-" + DATE_FORMAT.get().format(now);
+            log(index, "error", doc);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
@@ -111,11 +109,8 @@ abstract class AbstractSapBridgeController {
             PrintWriter pw = new PrintWriter(sw);
             throwable.printStackTrace(pw);
             doc.put("stack_trace", sw.toString());
-            Index index = new Index.Builder(doc)
-                    .index(INDEX_PREFIX + "exception-" + DATE_FORMAT.get().format(now))
-                    .type("exception")
-                    .build();
-            jestClient.executeAsync(index, loggingResultHandler);
+            String index = INDEX_PREFIX + "exception-" + DATE_FORMAT.get().format(now);
+            log(index, "exception", doc);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }

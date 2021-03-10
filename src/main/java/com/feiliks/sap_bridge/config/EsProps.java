@@ -7,8 +7,8 @@ import java.util.List;
 
 
 @Component
-@ConfigurationProperties("jest")
-public class JestProps {
+@ConfigurationProperties("elasticsearch")
+public class EsProps {
     private List<String> uris;
     private String username;
     private String password;
