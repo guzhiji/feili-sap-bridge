@@ -1,4 +1,4 @@
-package com.feiliks.sap_bridge;
+package com.feiliks.sap_bridge.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

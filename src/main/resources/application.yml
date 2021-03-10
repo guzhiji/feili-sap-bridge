@@ -7,9 +7,12 @@ spring:
   http:
     encoding:
       charset: UTF-8
-  elasticsearch:
-    jest:
-      uris: http://localhost:9200
+
+jest:
+  uris:
+    - http://localhost:9200
+  username: dev
+  password: dev123
 
 eureka:
   instance:
