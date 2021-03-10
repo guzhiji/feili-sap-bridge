@@ -21,7 +21,7 @@ public class JestConfig {
     @Autowired
     private JestProps jestProps;
 
-    @Bean("loggingJestClient")
+    @Bean
     public JestClient jestClient() throws Exception {
         SSLContext sslContext = new SSLContextBuilder()
                 .loadTrustMaterial(new TrustSelfSignedStrategy())
