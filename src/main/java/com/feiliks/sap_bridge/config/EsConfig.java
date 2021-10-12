@@ -16,6 +16,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.net.ssl.SSLContext;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
 
 
 @Configuration
@@ -28,9 +31,14 @@ public class EsConfig {
     public RestClientBuilder restClientBuilder() {
         HttpHost[] hosts = esProps.getUris().stream()
                 .map(host -> {
-                    String[] hostArr = host.split(":");
-                    return new HttpHost(hostArr[0], Integer.parseInt(hostArr[1]), "https");
+                    try {
+                        URI uri = new URI(host);
+                        return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+                    } catch (URISyntaxException e) {
+                        return null;
+                    }
                 })
+                .filter(Objects::nonNull)
                 .toArray(HttpHost[]::new);
         return RestClient.builder(hosts).setHttpClientConfigCallback(builder -> {
             try {
